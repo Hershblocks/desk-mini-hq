@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="robots" content="noindex">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tech HQ</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one control-panel column. Status strip on top, then a two-column grid of panels that stacks on phones. Single dark look on purpose, to match the orange wallpaper on the device. */
+:root{
+  color-scheme:dark;
+  --bg:#1a0d05; --panel:#26150a; --panel-2:#321c0d; --line:#5a3416;
+  --fg:#fdeedd; --muted:#d3a983; --accent:#ff8a1f; --accent-ink:#1a0d05;
+  --good:#7ddc8a; --warn:#ffd166; --off:#ff7a66;
+  --display:"Space Grotesk","Avenir Next","Segoe UI",sans-serif;
+  --body:"Inter","Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:16px;line-height:1.5;
+  background-image:linear-gradient(var(--panel) 1px,transparent 1px),linear-gradient(90deg,var(--panel) 1px,transparent 1px);
+  background-size:40px 40px;
+  padding-block:28px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+h1,h2{font-family:var(--display);text-wrap:balance;margin:0}
+h1{font-size:clamp(28px,5vw,44px);line-height:1.05}
+h1 span{color:var(--accent)}
+h2{font-size:20px}
+p{margin:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid var(--fg);outline-offset:2px}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.clock{font-family:var(--display);font-variant-numeric:tabular-nums;text-align:right}
+.clock b{display:block;font-size:30px;line-height:1}
+.clock small{color:var(--muted);font-size:14px}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.strip div{background:var(--panel);padding:14px 16px;min-width:0}
+.strip dt{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.strip dd{margin:4px 0 0;font-weight:600;display:flex;align-items:center;gap:8px}
+.dot{width:10px;height:10px;border-radius:50%;flex:none;background:var(--muted)}
+.dot.good{background:var(--good)} .dot.warn{background:var(--warn)} .dot.off{background:var(--off)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.panel.hero{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.panel.hero .eyebrow{color:var(--accent-ink)}
+ol.steps{margin:0;padding-left:22px;display:flex;flex-direction:column;gap:8px;font-weight:500}
+.apps{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.apps a{display:block;text-decoration:none;text-align:center;font-family:var(--display);font-weight:700;color:var(--fg);background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:14px 10px}
+.apps a:hover{border-color:var(--accent);color:var(--accent)}
+.note{color:var(--muted);font-size:14px}
+ul.check{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+ul.check label{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;background:var(--panel-2);cursor:pointer}
+ul.check input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent);flex:none}
+ul.check input:checked+span{color:var(--muted);text-decoration:line-through}
+button{font:600 14px var(--body);color:var(--fg);background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer;align-self:flex-start}
+button:hover{border-color:var(--accent)}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}
+.pill{display:inline-block;font-size:12px;font-weight:600;padding:2px 9px;border-radius:99px;border:1px solid currentColor;white-space:nowrap}
+.pill.good{color:var(--good)} .pill.warn{color:var(--warn)} .pill.off{color:var(--off)}
+dl.facts{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 16px}
+dl.facts dt{color:var(--muted)} dl.facts dd{margin:0;font-weight:500;min-width:0;overflow-wrap:anywhere}
+details{background:var(--panel-2);border-radius:8px;padding:10px 12px}
+summary{cursor:pointer;font-weight:600}
+details p{margin-top:8px;color:var(--muted)}
+footer{color:var(--muted);font-size:13px}
+
+.live{grid-column:1/-1}
+.livegrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;align-items:start}
+video{width:100%;aspect-ratio:16/9;background:#000;border-radius:10px;border:1px solid var(--line);object-fit:cover}
+.meter{height:12px;background:var(--panel-2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.meter i{display:block;height:100%;width:0;background:var(--accent);transition:width .08s linear}
+button.go{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-size:16px;padding:12px 18px}
+ul.found{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+ul.found li{display:flex;gap:8px;align-items:center}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">Cisco Desk Mini · home setup</p>
+      <h1>Desk Mini <span>Tech HQ</span></h1>
+      <p id="hello" class="note">Welcome back.</p>
+    </div>
+    <div class="clock" aria-live="off"><b id="time">--:--</b><small id="date">&nbsp;</small></div>
+  </header>
+
+  <dl class="strip">
+    <div><dt>Plugged into this laptop</dt><dd><span class="dot" id="d-top"></span><span id="t-top">Not checked yet</span></dd></div>
+    <div><dt>Calls from the Desk Mini itself</dt><dd><span class="dot off"></span>Not registered</dd></div>
+    <div><dt>Look</dt><dd><span class="dot good"></span>Orange circuit theme is on</dd></div>
+    <div><dt>Last checked</dt><dd><span class="dot"></span>November 16, 2026</dd></div>
+  </dl>
+
+  <div class="grid">
+    <section class="panel live">
+      <p class="eyebrow">Live check</p>
+      <h2 id="live-title">Is the Desk Mini plugged in?</h2>
+      <div class="livegrid">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <p id="live-msg">Press the button and allow the camera and microphone. This page then looks for the Desk Mini and keeps watching, so it updates when you plug the cable in.</p>
+          <button type="button" class="go" id="live-go">Check my Desk Mini</button>
+          <ul class="found">
+            <li><span class="dot" id="d-cam"></span><span id="t-cam">Camera: not checked yet</span></li>
+            <li><span class="dot" id="d-mic"></span><span id="t-mic">Microphone: not checked yet</span></li>
+            <li><span class="dot" id="d-spk"></span><span id="t-spk">Speaker: not checked yet</span></li>
+          </ul>
+          <div><p class="note">Microphone level (talk to see it move)</p><div class="meter"><i id="lvl"></i></div></div>
+          <p class="note" id="seen"></p>
+          <p class="note">The picture and sound stay on this laptop. Nothing is recorded or sent anywhere.</p>
+        </div>
+        <video id="cam" autoplay muted playsinline></video>
+      </div>
+    </section>
+
+    <section class="panel hero">
+      <p class="eyebrow">Start here</p>
+      <h2>Three steps to a call</h2>
+      <ol class="steps">
+        <li>Plug the Desk Mini into your laptop with the USB-C cable.</li>
+        <li>Open your call app and go to its audio and video settings.</li>
+        <li>Pick <b>Desk Mini</b> for the camera, the microphone and the speaker.</li>
+      </ol>
+      <p>Your laptop makes the call. The Desk Mini is the camera, mic and speaker.</p>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Open a call app</p>
+      <h2>Where do you want to meet?</h2>
+      <div class="apps">
+        <a href="https://meet.google.com/" target="_blank" rel="noopener">Google Meet</a>
+        <a href="https://zoom.us/join" target="_blank" rel="noopener">Zoom</a>
+        <a href="https://teams.microsoft.com/" target="_blank" rel="noopener">Teams</a>
+        <a href="https://web.webex.com/" target="_blank" rel="noopener">Webex</a>
+      </div>
+      <p class="note">FaceTime has no web link. Open the FaceTime app on a Mac, then choose Desk Mini in its Video menu.</p>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Before you join</p>
+      <h2>Call check</h2>
+      <ul class="check" id="check">
+        <li><label><input type="checkbox" id="c-cable"><span>USB-C cable is plugged in at both ends</span></label></li>
+        <li><label><input type="checkbox" id="c-cam"><span>Camera is set to Desk Mini and I can see myself</span></label></li>
+        <li><label><input type="checkbox" id="c-mic"><span>Microphone is set to Desk Mini</span></label></li>
+        <li><label><input type="checkbox" id="c-spk"><span>Speaker is set to Desk Mini and I can hear a test sound</span></label></li>
+        <li><label><input type="checkbox" id="c-mute"><span>I know where the mute button is</span></label></li>
+      </ul>
+      <button type="button" id="reset">Clear the checks</button>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">What it can do today</p>
+      <h2>Works and doesn't</h2>
+      <div class="tablebox">
+        <table>
+          <thead><tr><th>Use</th><th>Status</th></tr></thead>
+          <tbody>
+            <tr><td>Camera, mic and speaker for a laptop over USB-C</td><td><span class="pill good">Works</span></td></tr>
+            <tr><td>Zoom, Meet, Teams or FaceTime on the laptop</td><td><span class="pill good">Works</span></td></tr>
+            <tr><td>Calling from the Desk Mini with no laptop</td><td><span class="pill off">Needs sign-in</span></td></tr>
+            <tr><td>Zoom, Meet and Teams buttons on its own screen</td><td><span class="pill warn">After sign-in, not confirmed</span></td></tr>
+            <tr><td>FaceTime on the Desk Mini itself</td><td><span class="pill off">Not possible</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">About this device</p>
+      <h2>Device card</h2>
+      <dl class="facts">
+        <dt>Name</dt><dd>Tech HQ</dd>
+        <dt>Model</dt><dd>Cisco Desk Mini</dd>
+        <dt>Reset</dt><dd>Factory reset on November 16, 2026</dd>
+        <dt>Calling account</dt><dd>None. The screen says "Not Registered".</dd>
+      </dl>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">If something is off</p>
+      <h2>Quick fixes</h2>
+      <details><summary>No picture</summary><p>In the call app's video settings, switch the camera to Desk Mini. If it isn't listed, unplug the cable, wait five seconds and plug it back in.</p></details>
+      <details><summary>People can't hear me</summary><p>Switch the microphone to Desk Mini and check that the app isn't muted.</p></details>
+      <details><summary>I can't hear them</summary><p>Switch the speaker to Desk Mini and turn the laptop volume up.</p></details>
+      <details><summary>There's an echo</summary><p>Use the Desk Mini for both mic and speaker. Mixing it with the laptop's own mic or speakers causes echo.</p></details>
+    </section>
+
+    <section class="panel">
+      <p class="eyebrow">Optional</p>
+      <h2>Calling without a laptop</h2>
+      <p>The Desk Mini needs to be signed in to Webex once before it can place calls by itself.</p>
+      <ol class="steps">
+        <li>Sign in to your own Webex account and open Webex Settings.</li>
+        <li>Choose My Devices, then Generate Activation Code.</li>
+        <li>On the Desk Mini, choose Cisco Webex and type the code.</li>
+      </ol>
+      <p class="note">Not confirmed: whether a free Webex account can make the code, and whether signing in changes the name or wallpaper.</p>
+    </section>
+  </div>
+
+  <footer>This page can't open by itself. Bookmark it and open it when you sit down. Status reflects the setup on November 16, 2026.</footer>
+</div>
+
+<script>
+(function(){
+  var t=document.getElementById('time'),d=document.getElementById('date'),h=document.getElementById('hello');
+  function tick(){
+    var n=new Date(),hr=n.getHours();
+    t.textContent=n.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    d.textContent=n.toLocaleDateString([], {weekday:'long',month:'long',day:'numeric'});
+    h.textContent=(hr<12?'Good morning':hr<18?'Good afternoon':'Good evening')+'.';
+  }
+  tick(); setInterval(tick,15000);
+  var boxes=[].slice.call(document.querySelectorAll('#check input')),KEY='hq-call-check';
+  var saved={}; try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{}}catch(e){}
+  function save(){var s={};boxes.forEach(function(b){s[b.id]=b.checked});try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}}
+  boxes.forEach(function(b){b.checked=!!saved[b.id];b.addEventListener('change',save)});
+  document.getElementById('reset').addEventListener('click',function(){boxes.forEach(function(b){b.checked=false});save()});
+})();
+</script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)},stream=null,actx=null,raf=0;
+  function set(k,state,text){$('d-'+k).className='dot '+state;$('t-'+k).textContent=text}
+  function isDM(d){return /desk mini/i.test(d.label)}
+  async function scan(){
+    var devs=await navigator.mediaDevices.enumerateDevices();
+    var cam=devs.find(function(d){return d.kind==='videoinput'&&isDM(d)}),
+        mic=devs.find(function(d){return d.kind==='audioinput'&&isDM(d)}),
+        spk=devs.find(function(d){return d.kind==='audiooutput'&&isDM(d)}),
+        anySpk=devs.some(function(d){return d.kind==='audiooutput'});
+    set('cam',cam?'good':'off',cam?'Camera: Desk Mini found':'Camera: Desk Mini not found');
+    set('mic',mic?'good':'off',mic?'Microphone: Desk Mini found':'Microphone: Desk Mini not found');
+    if(spk)set('spk','good','Speaker: Desk Mini found');
+    else if(!anySpk)set('spk','warn',"Speaker: this browser doesn't list speakers");
+    else set('spk','off','Speaker: Desk Mini not found');
+    var ok=cam&&mic;
+    set('top',ok?'good':(cam||mic?'warn':'off'),ok?'Desk Mini is connected':(cam||mic?'Only partly connected':'Desk Mini not found'));
+    $('live-title').textContent=ok?'The Desk Mini is plugged in and ready':'The Desk Mini is not plugged in';
+    $('live-msg').textContent=ok?'You are seeing the Desk Mini camera. Choose "Desk Mini" in your call app and you are set.':'Plug in the USB-C cable. This page will notice by itself in a few seconds.';
+    var names=devs.filter(function(d){return d.kind==='videoinput'}).map(function(d){return d.label||'(no name shown)'});
+    $('seen').textContent='Cameras this browser sees: '+(names.length?names.join(', '):'none');
+    return {cam:cam,mic:mic};
+  }
+  function stop(){if(stream){stream.getTracks().forEach(function(t){t.stop()});stream=null}cancelAnimationFrame(raf);$('lvl').style.width='0'}
+  async function show(f){
+    stop();
+    if(!f.cam&&!f.mic){$('cam').srcObject=null;return}
+    stream=await navigator.mediaDevices.getUserMedia({video:f.cam?{deviceId:{exact:f.cam.deviceId}}:false,audio:f.mic?{deviceId:{exact:f.mic.deviceId}}:false});
+    $('cam').srcObject=stream;
+    if(f.mic){
+      actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      var an=actx.createAnalyser();an.fftSize=512;actx.createMediaStreamSource(stream).connect(an);
+      var buf=new Uint8Array(an.fftSize);
+      (function loop(){an.getByteTimeDomainData(buf);var p=0;for(var i=0;i<buf.length;i++){p=Math.max(p,Math.abs(buf[i]-128))}
+        $('lvl').style.width=Math.min(100,p*1.6)+'%';raf=requestAnimationFrame(loop)})();
+    }
+  }
+  async function run(){
+    try{
+      if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('none');
+      var first=await navigator.mediaDevices.getUserMedia({video:true,audio:true});
+      var found;
+      try{found=await scan()}finally{first.getTracks().forEach(function(t){t.stop()})}
+      await show(found);
+      $('live-go').textContent='Check again';
+    }catch(e){
+      var denied=e&&(e.name==='NotAllowedError'||e.name==='SecurityError');
+      $('live-msg').textContent=denied?'The camera and microphone were not allowed, so this page cannot look for the Desk Mini. Allow them in the browser address bar, then press the button again.':'This browser could not open a camera or microphone. Check the cable, then press the button again.';
+      set('top','warn','Could not check');
+    }
+  }
+  $('live-go').addEventListener('click',run);
+  if(navigator.mediaDevices&&navigator.mediaDevices.addEventListener)navigator.mediaDevices.addEventListener('devicechange',function(){if($('live-go').textContent==='Check again')run()});
+})();
+</script>
+</body>
+</html>
