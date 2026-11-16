@@ -115,7 +115,7 @@ ul.found li{display:flex;gap:8px;align-items:center}
           <p class="note" id="seen"></p>
           <p class="note">The picture and sound stay on this laptop. Nothing is recorded or sent anywhere.</p>
         </div>
-        <video id="cam" autoplay muted playsinline></video>
+        <div style="display:flex;flex-direction:column;gap:8px;min-width:0"><video id="cam" autoplay muted playsinline></video><p class="note">Black picture? Open the camera cover on the Desk Mini and tap its screen to wake it up.</p></div>
       </div>
     </section>
 
@@ -162,7 +162,8 @@ ul.found li{display:flex;gap:8px;align-items:center}
         <table>
           <thead><tr><th>Use</th><th>Status</th></tr></thead>
           <tbody>
-            <tr><td>Camera, mic and speaker for a laptop over USB-C</td><td><span class="pill good">Works</span></td></tr>
+            <tr><td>Camera and mic for a laptop over USB-C</td><td><span class="pill good">Works</span></td></tr>
+            <tr><td>Speaker for a laptop over USB-C</td><td><span class="pill warn">Not confirmed</span></td></tr>
             <tr><td>Zoom, Meet, Teams or FaceTime on the laptop</td><td><span class="pill good">Works</span></td></tr>
             <tr><td>Calling from the Desk Mini with no laptop</td><td><span class="pill off">Needs sign-in</span></td></tr>
             <tr><td>Zoom, Meet and Teams buttons on its own screen</td><td><span class="pill warn">After sign-in, not confirmed</span></td></tr>
@@ -240,13 +241,15 @@ ul.found li{display:flex;gap:8px;align-items:center}
     set('mic',mic?'good':'off',mic?'Microphone: Desk Mini found':'Microphone: Desk Mini not found');
     if(spk)set('spk','good','Speaker: Desk Mini found');
     else if(!anySpk)set('spk','warn',"Speaker: this browser doesn't list speakers");
-    else set('spk','off','Speaker: Desk Mini not found');
+    else set('spk','warn','Speaker: not listed under the name Desk Mini');
     var ok=cam&&mic;
     set('top',ok?'good':(cam||mic?'warn':'off'),ok?'Desk Mini is connected':(cam||mic?'Only partly connected':'Desk Mini not found'));
     $('live-title').textContent=ok?'The Desk Mini is plugged in and ready':'The Desk Mini is not plugged in';
     $('live-msg').textContent=ok?'You are seeing the Desk Mini camera. Choose "Desk Mini" in your call app and you are set.':'Plug in the USB-C cable. This page will notice by itself in a few seconds.';
     var names=devs.filter(function(d){return d.kind==='videoinput'}).map(function(d){return d.label||'(no name shown)'});
     $('seen').textContent='Cameras this browser sees: '+(names.length?names.join(', '):'none');
+    var outs=devs.filter(function(d){return d.kind==='audiooutput'&&d.deviceId!=='default'&&d.deviceId!=='communications'}).map(function(d){return d.label||'(no name shown)'});
+    $('seen').textContent+='. Speakers it sees: '+(outs.length?outs.join(', '):'none')+'.';
     return {cam:cam,mic:mic};
   }
   function stop(){if(stream){stream.getTracks().forEach(function(t){t.stop()});stream=null}cancelAnimationFrame(raf);$('lvl').style.width='0'}
@@ -255,8 +258,10 @@ ul.found li{display:flex;gap:8px;align-items:center}
     if(!f.cam&&!f.mic){$('cam').srcObject=null;return}
     stream=await navigator.mediaDevices.getUserMedia({video:f.cam?{deviceId:{exact:f.cam.deviceId}}:false,audio:f.mic?{deviceId:{exact:f.mic.deviceId}}:false});
     $('cam').srcObject=stream;
+    var pl=$('cam').play();if(pl&&pl.catch)pl.catch(function(){});
     if(f.mic){
       actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+      if(actx.state==='suspended'){try{await actx.resume()}catch(e){}}
       var an=actx.createAnalyser();an.fftSize=512;actx.createMediaStreamSource(stream).connect(an);
       var buf=new Uint8Array(an.fftSize);
       (function loop(){an.getByteTimeDomainData(buf);var p=0;for(var i=0;i<buf.length;i++){p=Math.max(p,Math.abs(buf[i]-128))}
